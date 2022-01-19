@@ -32,4 +32,7 @@ jobs:
         CH_IMAGE_USERNAME: ${{ secrets.CH_IMAGE_USERNAME }}
         CH_IMAGE_PASSWORD: ${{ secrets.CH_IMAGE_PASSWORD }}
       # run: echo "Hello ${{ github.event.inputs.name }}"
-      run: ./ci-build.sh
+      run: |
+        git clone https://github.com/jtronge/nwchem-containers.git
+        cd nwchem-containers
+        ./ci-build.sh
