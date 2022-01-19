@@ -1,6 +1,7 @@
 # This is a basic workflow that is manually triggered
 
-name: Manual workflow
+# name: Manual workflow
+name: Manual container build workflow
 
 # Controls when the action will run. Workflow runs when manually triggered using the UI
 # or API.
@@ -27,4 +28,8 @@ jobs:
     steps:
     # Runs a single command using the runners shell
     - name: Send greeting
-      run: echo "Hello ${{ github.event.inputs.name }}"
+      env:
+        CH_IMAGE_USERNAME: ${{ secrets.CH_IMAGE_USERNAME }}
+        CH_IMAGE_PASSWORD: ${{ secrets.CH_IMAGE_PASSWORD }}
+      # run: echo "Hello ${{ github.event.inputs.name }}"
+      run: ./ci-build.sh
