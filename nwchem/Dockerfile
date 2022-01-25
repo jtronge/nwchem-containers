@@ -28,7 +28,6 @@
 #    make install && \
 #    echo "$PMIX_DIR/lib" >> /etc/ld.so.conf.d/pmix.conf && \
 #    ldconfig
-#ENV OMPI_DIR=/opt/mpi
 # Install OpenMPI
 #RUN curl -O -L https://download.open-mpi.org/release/open-mpi/v4.1/openmpi-4.1.2.tar.bz2 && \
 #    tar -xvf openmpi-4.1.2.tar.bz2 && \
@@ -42,6 +41,7 @@
 FROM jtronge/ubuntu-mpi
 
 ARG VERSION=master
+ENV OMPI_DIR=/opt/mpi
 ENV PATH=$OMPI_DIR/bin:$PATH
 # ENV LD_LIBRARY_PATH=$OMPI_DIR/lib:$LD_LIBRARY_PATH
 ENV ARMCI_NETWORK=MPI-PR
