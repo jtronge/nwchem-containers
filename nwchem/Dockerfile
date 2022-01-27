@@ -17,7 +17,6 @@
 #       libnuma-dev libslurm-dev libnl-3-dev libnl-route-3-dev udev libevent-dev \
 #       hwloc libhwloc-dev
 
-#ARG NUMJOBS=8
 #ENV PMIX_DIR=/opt/pmix
 # Install PMIx
 #RUN curl -O -L https://github.com/openpmix/openpmix/releases/download/v4.1.0/pmix-4.1.0.tar.bz2 && \
@@ -41,6 +40,7 @@
 FROM jtronge/ubuntu-mpi
 
 ARG VERSION=master
+ARG NUMJOBS=2
 ENV OMPI_DIR=/opt/mpi
 ENV PATH=$OMPI_DIR/bin:$PATH
 # ENV LD_LIBRARY_PATH=$OMPI_DIR/lib:$LD_LIBRARY_PATH
