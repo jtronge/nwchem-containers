@@ -44,6 +44,8 @@ RUN echo "/usr/local/lib" > /etc/ld.so.conf.d/usrlocal.conf \
  && echo "/usr/local/lib64" >> /etc/ld.so.conf.d/usrlocal.conf \
  && ldconfig
 
+ARG NUMJOBS=2
+
 # PMI2 installation below is copied from the Charliecloud example Dockerfile
 #
 # PMI2.
@@ -56,7 +58,7 @@ RUN wget https://download.schedmd.com/slurm/slurm-${SLURM_VERSION}.tar.bz2 \
  && cd slurm-${SLURM_VERSION} \
  && ./configure --prefix=/usr/local \
  && cd contribs/pmi2 \
- && make -j$(getconf _NPROCESSORS_ONLN) install \
+ && make -j$NUMJOBS install \
  && rm -Rf ../../../slurm*
 
 ARG MPI_URL=https://www.open-mpi.org/software/ompi/v4.1/downloads
@@ -75,7 +77,7 @@ RUN wget -nv ${MPI_URL}/openmpi-${MPI_VERSION}.tar.gz \
                 --disable-pty-support \
                 --enable-mca-no-build=btl-openib,plm-slurm \
                 --enable-mpi1-compatibility \
- && make -j$(getconf _NPROCESSORS_ONLN) install \
+ && make -j$NUMJOBS install \
  && rm -Rf ../openmpi-${MPI_VERSION}*
 RUN ldconfig
 RUN echo 'plm_rsh_agent = false' >> /mnt/0/openmpi-mca-params.conf
@@ -103,8 +105,8 @@ RUN wget https://cmake.org/files/v3.22/cmake-${CMAKE_VERSION}.tar.gz \
  && tar xf cmake-${CMAKE_VERSION}.tar.gz \
  && cd cmake-${CMAKE_VERSION} \
  && ./bootstrap --prefix=/usr \
- && make -j \
- && make -j install \
+ && make -j$NUMJOBS \
+ && make -j$NUMJOBS install \
  && rm -Rf ../cmake-${CMAKE_VERSION}*
 
 RUN curl -L https://api.github.com/repos/nwchemgit/nwchem/tarball/$VERSION > nwchem.tar.gz \
@@ -112,7 +114,7 @@ RUN curl -L https://api.github.com/repos/nwchemgit/nwchem/tarball/$VERSION > nwc
  && cd nwchem \
  && tar zxf ../nwchem.tar.gz --strip-components=1 \
  && cd src \
- && make -j nwchem_config \
- && make -j \
- && make -j install INSTALL_PREFIX=/opt/nwchem \
+ && make -j$NUMJOBS nwchem_config \
+ && make -j$NUMJOBS \
+ && make -j$NUMJOBS install INSTALL_PREFIX=/opt/nwchem \
  && rm -Rf ../../nwchem*
