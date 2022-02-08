@@ -1,7 +1,7 @@
 # thanks to heasterday for putting this together
-FROM centos:7
-RUN yum install -y epel-release \
- && yum install -y --setopt=skip_missing_names_on_install=0 \
+FROM quay.io/centos/centos:stream8
+RUN dnf install -y epel-release \
+ && dnf install -y --setopt=skip_missing_names_on_install=0 \
                 autoconf \
                 automake \
                 file \
@@ -35,10 +35,29 @@ RUN yum install -y epel-release \
                 openssh-clients \
                 openssl-devel \
                 bzip2 \
- && yum install -y --setopt=install_weak_deps=false --skip-broken \
+ && dnf install -y --setopt=install_weak_deps=false --skip-broken \
                 libpsm2 \
                 libpsm2-devel \
- && yum clean all
+ && dnf clean all
+
+RUN echo "/usr/local/lib" > /etc/ld.so.conf.d/usrlocal.conf \
+ && echo "/usr/local/lib64" >> /etc/ld.so.conf.d/usrlocal.conf \
+ && ldconfig
+
+# PMI2 installation below is copied from the Charliecloud example Dockerfile
+#
+# PMI2.
+#
+# CentOS doesn't have a package with the Slurm PMI2 libraries we need, so
+# build them from Slurm's release.
+ARG SLURM_VERSION=21.08.5
+RUN wget https://download.schedmd.com/slurm/slurm-${SLURM_VERSION}.tar.bz2 \
+ && tar -xf slurm-${SLURM_VERSION}.tar.bz2 \
+ && cd slurm-${SLURM_VERSION} \
+ && ./configure --prefix=/usr/local \
+ && cd contribs/pmi2 \
+ && make -j$(getconf _NPROCESSORS_ONLN) install \
+ && rm -Rf ../../../slurm*
 
 ARG MPI_URL=https://www.open-mpi.org/software/ompi/v4.1/downloads
 ARG MPI_VERSION=4.1.2
@@ -50,6 +69,7 @@ RUN wget -nv ${MPI_URL}/openmpi-${MPI_VERSION}.tar.gz \
     ./configure --prefix=/usr/local \
                 --sysconfdir=/mnt/0 \
                 --with-slurm \
+                --with-pmi=/usr/local \
                 --with-pmix \
                 --with-ompi-pmix-rte \
                 --disable-pty-support \
@@ -84,7 +104,8 @@ RUN wget https://cmake.org/files/v3.22/cmake-${CMAKE_VERSION}.tar.gz \
  && cd cmake-${CMAKE_VERSION} \
  && ./bootstrap --prefix=/usr \
  && make -j \
- && make -j install
+ && make -j install \
+ && rm -Rf ../cmake-${CMAKE_VERSION}*
 
 RUN curl -L https://api.github.com/repos/nwchemgit/nwchem/tarball/$VERSION > nwchem.tar.gz \
  && mkdir -p nwchem \
@@ -93,4 +114,5 @@ RUN curl -L https://api.github.com/repos/nwchemgit/nwchem/tarball/$VERSION > nwc
  && cd src \
  && make -j nwchem_config \
  && make -j \
- && make -j install INSTALL_PREFIX=/opt/nwchem
+ && make -j install INSTALL_PREFIX=/opt/nwchem \
+ && rm -Rf ../../nwchem*
