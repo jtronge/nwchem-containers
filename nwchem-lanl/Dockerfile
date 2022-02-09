@@ -116,5 +116,4 @@ RUN curl -L https://api.github.com/repos/nwchemgit/nwchem/tarball/$VERSION > nwc
  && cd src \
  && make -j$NUMJOBS nwchem_config \
  && make -j$NUMJOBS \
- && make -j$NUMJOBS install INSTALL_PREFIX=/opt/nwchem \
- && rm -Rf ../../nwchem*
+ && make -j$NUMJOBS install INSTALL_PREFIX=/opt/nwchem
